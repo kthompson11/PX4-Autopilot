@@ -146,6 +146,7 @@ set(models
 	boat
 	cloudship
 	glider
+	helicopter
 	if750a
 	iris
 	iris_ctrlalloc
