@@ -35,7 +35,7 @@
 
 #include <px4_platform_common/module.h>
 
-#include <src/modules/micrortps_bridge/micrortps_client/dds_topics.h>
+#include <src/modules/microdds_client/dds_topics.h>
 
 extern "C" __EXPORT int microdds_client_main(int argc, char *argv[]);
 

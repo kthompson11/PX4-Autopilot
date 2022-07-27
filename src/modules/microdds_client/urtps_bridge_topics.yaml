@@ -21,7 +21,7 @@
 # the 'msg/tools/uorb_to_ros_urtps_topics.py' script to regenerate this same
 # file under 'px4_ros_com/templates/''. The same is not applicable/required if
 # using this bridge with "raw" RTPS/DDS applications, since the microRTPS agent
-# to be used and stored in 'build/<px4_target>/src/modules/micrortps_bridge/''
+# to be used and stored in 'build/<px4_target>/src/modules/microdds_client/''
 # gets generated using this same list.
 #
 #####
