@@ -48,9 +48,9 @@
 #include "EKFGSF_yaw.h"
 #include "bias_estimator.hpp"
 
-#include <uORB/topics/estimator_aid_source_1d.h>
-#include <uORB/topics/estimator_aid_source_2d.h>
-#include <uORB/topics/estimator_aid_source_3d.h>
+#include <uORB/topics/estimator_aid_source1d.h>
+#include <uORB/topics/estimator_aid_source2d.h>
+#include <uORB/topics/estimator_aid_source3d.h>
 
 class Ekf final : public EstimatorInterface
 {
@@ -537,17 +537,17 @@ private:
 	bool _inhibit_flow_use{false};	///< true when use of optical flow and range finder is being inhibited
 	Vector2f _flow_compensated_XY_rad{};	///< measured delta angle of the image about the X and Y body axes after removal of body rotation (rad), RH rotation is positive
 
-	estimator_aid_source_1d_s _aid_src_baro_hgt{};
-	estimator_aid_source_1d_s _aid_src_rng_hgt{};
-	estimator_aid_source_1d_s _aid_src_airspeed{};
+	estimator_aid_source1d_s _aid_src_baro_hgt{};
+	estimator_aid_source1d_s _aid_src_rng_hgt{};
+	estimator_aid_source1d_s _aid_src_airspeed{};
 
-	estimator_aid_source_2d_s _aid_src_fake_pos{};
+	estimator_aid_source2d_s _aid_src_fake_pos{};
 
 	estimator_aid_source_1d_s _aid_src_ev_yaw{};
 
 	estimator_aid_source_1d_s _aid_src_gnss_yaw{};
-	estimator_aid_source_3d_s _aid_src_gnss_vel{};
-	estimator_aid_source_3d_s _aid_src_gnss_pos{};
+	estimator_aid_source3d_s _aid_src_gnss_vel{};
+	estimator_aid_source3d_s _aid_src_gnss_pos{};
 
 	estimator_aid_source_1d_s _aid_src_mag_heading{};
 	estimator_aid_source_3d_s _aid_src_mag{};
@@ -673,8 +673,8 @@ private:
 	// apply sensible limits to the declination and length of the NE mag field states estimates
 	void limitDeclination();
 
-	void updateAirspeed(const airspeedSample &airspeed_sample, estimator_aid_source_1d_s &airspeed) const;
-	void fuseAirspeed(estimator_aid_source_1d_s &airspeed);
+	void updateAirspeed(const airspeedSample &airspeed_sample, estimator_aid_source1d_s &airspeed) const;
+	void fuseAirspeed(estimator_aid_source1d_s &airspeed);
 
 	// fuse synthetic zero sideslip measurement
 	void fuseSideslip();
@@ -682,12 +682,12 @@ private:
 	// fuse body frame drag specific forces for multi-rotor wind estimation
 	void fuseDrag(const dragSample &drag_sample);
 
-	void fuseBaroHgt(estimator_aid_source_1d_s &baro_hgt);
-	void fuseRngHgt(estimator_aid_source_1d_s &range_hgt);
+	void fuseBaroHgt(estimator_aid_source1d_s &baro_hgt);
+	void fuseRngHgt(estimator_aid_source1d_s &range_hgt);
 	void fuseEvHgt();
 
-	void updateBaroHgt(const baroSample &baro_sample, estimator_aid_source_1d_s &baro_hgt);
-	void updateRngHgt(estimator_aid_source_1d_s &rng_hgt);
+	void updateBaroHgt(const baroSample &baro_sample, estimator_aid_source1d_s &baro_hgt);
+	void updateRngHgt(estimator_aid_source1d_s &rng_hgt);
 
 	// fuse single velocity and position measurement
 	bool fuseVelPosHeight(const float innov, const float innov_var, const int obs_index);
@@ -1103,7 +1103,7 @@ private:
 
 	void resetGpsDriftCheckFilters();
 
-	bool resetEstimatorAidStatusFlags(estimator_aid_source_1d_s &status) const
+	bool resetEstimatorAidStatusFlags(estimator_aid_source1d_s &status) const
 	{
 		if (status.timestamp_sample != 0) {
 			status.timestamp_sample = 0;
@@ -1117,7 +1117,7 @@ private:
 		return false;
 	}
 
-	void resetEstimatorAidStatus(estimator_aid_source_1d_s &status) const
+	void resetEstimatorAidStatus(estimator_aid_source1d_s &status) const
 	{
 		if (resetEstimatorAidStatusFlags(status)) {
 			status.observation = 0;
@@ -1162,7 +1162,7 @@ private:
 		}
 	}
 
-	void setEstimatorAidStatusTestRatio(estimator_aid_source_1d_s &status, float innovation_gate) const
+	void setEstimatorAidStatusTestRatio(estimator_aid_source1d_s &status, float innovation_gate) const
 	{
 		if (PX4_ISFINITE(status.innovation) && PX4_ISFINITE(status.innovation_variance)) {
 			status.test_ratio = sq(status.innovation) / (sq(innovation_gate) * status.innovation_variance);

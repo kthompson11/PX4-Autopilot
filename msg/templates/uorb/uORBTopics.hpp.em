@@ -7,7 +7,6 @@
 @# Start of Template
 @#
 @# Context:
-@#  - msgs (List) list of all msg files
 @#  - topics (List) list of all topic names
 @###############################################
 /****************************************************************************
@@ -44,11 +43,9 @@
  ****************************************************************************/
 
 @{
-msg_names = [mn.replace(".msg", "") for mn in msgs]
-msgs_count = len(msg_names)
-topics_all = topics
-topics_all.sort()
-topics_count_all = len(topics_all)
+topics_count = len(topics)
+topic_names_all = list(set(topics)) # set() filters duplicates
+topic_names_all.sort()
 }@
 
 #pragma once
@@ -57,7 +54,7 @@ topics_count_all = len(topics_all)
 
 #include <uORB/uORB.h>
 
-static constexpr size_t ORB_TOPICS_COUNT{@(topics_count_all)};
+static constexpr size_t ORB_TOPICS_COUNT{@(topics_count)};
 static constexpr size_t orb_topics_count() { return ORB_TOPICS_COUNT; }
 
 /*
@@ -66,8 +63,8 @@ static constexpr size_t orb_topics_count() { return ORB_TOPICS_COUNT; }
 extern const struct orb_metadata *const *orb_get_topics() __EXPORT;
 
 enum class ORB_ID : uint8_t {
-@[for idx, msg_name in enumerate(topics_all)]@
-	@(msg_name) = @(idx),
+@[for idx, topic_name in enumerate(topic_names_all)]@
+	@(topic_name) = @(idx),
 @[end for]
 	INVALID
 };

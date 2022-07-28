@@ -38,7 +38,7 @@
 
 #include "ekf.h"
 
-void Ekf::updateBaroHgt(const baroSample &baro_sample, estimator_aid_source_1d_s &baro_hgt)
+void Ekf::updateBaroHgt(const baroSample &baro_sample, estimator_aid_source1d_s &baro_hgt)
 {
 	// reset flags
 	resetEstimatorAidStatusFlags(baro_hgt);
@@ -88,7 +88,7 @@ void Ekf::updateBaroHgt(const baroSample &baro_sample, estimator_aid_source_1d_s
 	baro_hgt.timestamp_sample = baro_sample.time_us;
 }
 
-void Ekf::fuseBaroHgt(estimator_aid_source_1d_s &baro_hgt)
+void Ekf::fuseBaroHgt(estimator_aid_source1d_s &baro_hgt)
 {
 	if (baro_hgt.fusion_enabled
 	    && !baro_hgt.innovation_rejected
@@ -99,7 +99,7 @@ void Ekf::fuseBaroHgt(estimator_aid_source_1d_s &baro_hgt)
 	}
 }
 
-void Ekf::updateRngHgt(estimator_aid_source_1d_s &rng_hgt)
+void Ekf::updateRngHgt(estimator_aid_source1d_s &rng_hgt)
 {
 	// reset flags
 	resetEstimatorAidStatusFlags(rng_hgt);
@@ -132,7 +132,7 @@ void Ekf::updateRngHgt(estimator_aid_source_1d_s &rng_hgt)
 	rng_hgt.timestamp_sample = _range_sensor.getSampleAddress()->time_us;
 }
 
-void Ekf::fuseRngHgt(estimator_aid_source_1d_s &rng_hgt)
+void Ekf::fuseRngHgt(estimator_aid_source1d_s &rng_hgt)
 {
 	if (rng_hgt.fusion_enabled
 	    && !rng_hgt.innovation_rejected

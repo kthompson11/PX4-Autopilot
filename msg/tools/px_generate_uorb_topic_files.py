@@ -34,7 +34,7 @@
 
 """
 px_generate_uorb_topic_files.py
-Generates c/cpp header/source files for uorb topics from .msg (ROS syntax)
+Generates c/cpp header/source files for uorb topics from .msg
 message files
 """
 
@@ -42,6 +42,7 @@ import os
 import shutil
 import filecmp
 import argparse
+import re
 import sys
 
 try:
@@ -76,7 +77,7 @@ except ImportError as e:
 
 
 __author__ = "Sergey Belash, Thomas Gubler, Beat Kueng"
-__copyright__ = "Copyright (C) 2013-2016 PX4 Development Team."
+__copyright__ = "Copyright (C) 2013-2022 PX4 Development Team."
 __license__ = "BSD"
 __email__ = "thomasgubler@gmail.com"
 
@@ -90,11 +91,9 @@ TOPICS_TOKEN = '# TOPICS '
 
 CONSTRAINED_FLASH = False
 
-def get_topics(filename, msg_name):
+def get_topics(filename):
     """
-    Get TOPICS names from a "# TOPICS" line. If there are no multi topics defined,
-    set topic name same as the message name, since the user doesn't expect any new
-    custom topic names.
+    Get TOPICS names from a "# TOPICS" line
     """
     ofile = open(filename, 'r')
     text = ofile.read()
@@ -103,20 +102,20 @@ def get_topics(filename, msg_name):
         if each_line.startswith(TOPICS_TOKEN):
             topic_names_str = each_line.strip()
             topic_names_str = topic_names_str.replace(TOPICS_TOKEN, "")
-            result.extend(topic_names_str.split(" "))
+            topic_names_list = topic_names_str.split(" ")
+            for topic in topic_names_list:
+                # topic name PascalCase (file name) to snake_case (topic name)
+                topic_name = re.sub(r'(?<!^)(?=[A-Z])', '_', topic).lower()
+                result.append(topic_name)
     ofile.close()
 
     if len(result) == 0:
-        result.append(msg_name)
+        # topic name PascalCase (file name) to snake_case (topic name)
+        file_base_name = os.path.basename(filename).replace(".msg", "")
+        topic_name = re.sub(r'(?<!^)(?=[A-Z])', '_', file_base_name).lower()
+        result.append(topic_name)
 
     return result
-
-
-def get_msgs_list(msgdir):
-    """
-    Makes list of msg files in the given directory
-    """
-    return [fn for fn in os.listdir(msgdir) if fn.endswith(".msg")]
 
 
 def generate_output_from_file(format_idx, filename, outputdir, package, templatedir, includepath):
@@ -124,13 +123,18 @@ def generate_output_from_file(format_idx, filename, outputdir, package, template
     Converts a single .msg file to an uorb header/source file
     """
     msg_context = genmsg.msg_loader.MsgContext.create_default()
-    full_type_name = genmsg.gentools.compute_full_type_name(
-        package, os.path.basename(filename))
-    spec = genmsg.msg_loader.load_msg_from_file(
-        msg_context, filename, full_type_name)
+    full_type_name = genmsg.gentools.compute_full_type_name(package, os.path.basename(filename))
+
+    file_base_name = os.path.basename(filename).replace(".msg", "")
+
+    full_type_name_snake = re.sub(r'(?<!^)(?=[A-Z])', '_', file_base_name).lower()
+
+    spec = genmsg.msg_loader.load_msg_from_file(msg_context, filename, full_type_name)
+
     field_name_and_type = {}
     for field in spec.parsed_fields():
         field_name_and_type.update({field.name: field.type})
+
     # assert if the timestamp field exists
     try:
         assert 'timestamp' in field_name_and_type
@@ -138,6 +142,7 @@ def generate_output_from_file(format_idx, filename, outputdir, package, template
         print("[ERROR] uORB topic files generator:\n\tgenerate_output_from_file:\tNo 'timestamp' field found in " +
               spec.short_name + " msg definition!")
         exit(1)
+
     # assert if the timestamp field is of type uint64
     try:
         assert field_name_and_type.get('timestamp') == 'uint64'
@@ -146,16 +151,18 @@ def generate_output_from_file(format_idx, filename, outputdir, package, template
               " msg definition is not of type uint64 but rather of type " + field_name_and_type.get('timestamp') + "!")
         exit(1)
 
-    # Get topics used for the message
-    topics = get_topics(filename, spec.short_name)
+    topics = get_topics(filename)
 
     if includepath:
         search_path = genmsg.command_line.includepath_to_dict(includepath)
     else:
         search_path = {}
+
     genmsg.msg_loader.load_depends(msg_context, spec, search_path)
     md5sum = genmsg.gentools.compute_md5(msg_context, spec)
+
     em_globals = {
+        "name_snake_case": full_type_name_snake,
         "file_name_in": filename,
         "md5sum": md5sum,
         "search_path": search_path,
@@ -170,7 +177,7 @@ def generate_output_from_file(format_idx, filename, outputdir, package, template
         os.makedirs(outputdir)
 
     template_file = os.path.join(templatedir, TEMPLATE_FILE[format_idx])
-    output_file = os.path.join(outputdir, spec.short_name + OUTPUT_FILE_EXT[format_idx])
+    output_file = os.path.join(outputdir, full_type_name_snake + OUTPUT_FILE_EXT[format_idx])
 
     return generate_by_template(output_file, template_file, em_globals)
 
@@ -198,131 +205,20 @@ def generate_by_template(output_file, template_file, em_globals):
     ofile.close()
     return True
 
-
-def convert_dir(format_idx, inputdir, outputdir, package, templatedir):
-    """
-    Converts all .msg files in inputdir to uORB header/source files
-    """
-
-    # Find the most recent modification time in input dir
-    maxinputtime = 0
-    for f in os.listdir(inputdir):
-        fni = os.path.join(inputdir, f)
-        if os.path.isfile(fni):
-            it = os.path.getmtime(fni)
-            if it > maxinputtime:
-                maxinputtime = it
-
-    # Find the most recent modification time in output dir
-    maxouttime = 0
-    if os.path.isdir(outputdir):
-        for f in os.listdir(outputdir):
-            fni = os.path.join(outputdir, f)
-            if os.path.isfile(fni):
-                it = os.path.getmtime(fni)
-                if it > maxouttime:
-                    maxouttime = it
-
-    # Do not generate if nothing changed on the input
-    if (maxinputtime != 0 and maxouttime != 0 and maxinputtime < maxouttime):
-        return False
-
-    includepath = INCL_DEFAULT + [':'.join([package, inputdir])]
-    for f in os.listdir(inputdir):
-        # Ignore hidden files
-        if f.startswith("."):
-            continue
-
-        fn = os.path.join(inputdir, f)
-        # Only look at actual files
-        if not os.path.isfile(fn):
-            continue
-
-        if fn[-4:].lower() != '.msg':
-            continue
-
-        generate_output_from_file(format_idx, fn, outputdir, package, templatedir, includepath)
-
-    return True
-
-
-def copy_changed(inputdir, outputdir, prefix='', quiet=False):
-    """
-    Copies files from inputdir to outputdir if they don't exist in
-    outputdir or if their content changed
-    """
-
-    # Make sure output directory exists:
-    if not os.path.isdir(outputdir):
-        os.makedirs(outputdir)
-
-    for input_file in os.listdir(inputdir):
-        fni = os.path.join(inputdir, input_file)
-        if os.path.isfile(fni):
-            # Check if input_file exists in outpoutdir, copy the file if not
-            fno = os.path.join(outputdir, prefix + input_file)
-            if not os.path.isfile(fno):
-                shutil.copy(fni, fno)
-                if not quiet:
-                    print("{0}: new header file".format(fno))
-                continue
-
-            if os.path.getmtime(fni) > os.path.getmtime(fno):
-                # The file exists in inputdir and outputdir
-                # only copy if contents do not match
-                if not filecmp.cmp(fni, fno):
-                    shutil.copy(fni, fno)
-                    if not quiet:
-                        print("{0}: updated".format(input_file))
-                    continue
-
-            if not quiet:
-                print("{0}: unchanged".format(input_file))
-
-
-def convert_dir_save(format_idx, inputdir, outputdir, package, templatedir, temporarydir, prefix, quiet=False):
-    """
-    Converts all .msg files in inputdir to uORB header files
-    Unchanged existing files are not overwritten.
-    """
-    # Create new headers in temporary output directory
-    convert_dir(format_idx, inputdir, temporarydir, package, templatedir)
-    if generate_idx == 1:
-        generate_topics_list_file(inputdir, temporarydir, TOPICS_LIST_TEMPLATE_FILE[1], templatedir)
-    # Copy changed headers from temporary dir to output dir
-    copy_changed(temporarydir, outputdir, prefix, quiet)
-
-
-def generate_topics_list_file(msgdir, outputdir, template_filename, templatedir):
-    # generate cpp file with topics list
-    msgs = get_msgs_list(msgdir)
-    topics = []
-    for msg in msgs:
-        msg_filename = os.path.join(msgdir, msg)
-        topics.extend(get_topics(msg_filename, msg))
-    tl_globals = {"msgs": msgs, "topics": topics}
-    tl_template_file = os.path.join(templatedir, template_filename)
-    tl_out_file = os.path.join(outputdir, template_filename.replace(".em", ""))
-    generate_by_template(tl_out_file, tl_template_file, tl_globals)
-
-
 def generate_topics_list_file_from_files(files, outputdir, template_filename, templatedir):
-    # Get message file names ending with .msg only
-    msg_filenames = [p for p in files if os.path.basename(p).endswith(".msg")]
+    # generate cpp file with topics list
+    filenames = []
+    for filename in [os.path.basename(p) for p in files if os.path.basename(p).endswith(".msg")]:
+        filenames.append(re.sub(r'(?<!^)(?=[A-Z])', '_', filename).lower())
 
-    # Get topics used in messages
     topics = []
-    for msg_filename in msg_filenames:
-        msg_name = os.path.basename(msg_filename).replace('.msg', '')
-        topics.extend(get_topics(msg_filename, msg_name))
+    for msg_filename in files:
+        topics.extend(get_topics(msg_filename))
 
-    # Get only the message file name for "msgs" component
-    msg_basenames = [os.path.basename(p) for p in msg_filenames]
-
-    # Set the Template dictionary settings
-    tl_globals = {"msgs": msg_basenames, "topics": topics}
+    tl_globals = {"msgs": filenames, "topics": topics}
     tl_template_file = os.path.join(templatedir, template_filename)
     tl_out_file = os.path.join(outputdir, template_filename.replace(".em", ""))
+
     generate_by_template(tl_out_file, tl_template_file, tl_globals)
 
 
@@ -335,16 +231,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Convert msg files to uorb headers/sources')
     parser.add_argument('--headers', help='Generate header files', action='store_true')
     parser.add_argument('--sources', help='Generate source files', action='store_true')
-    parser.add_argument('-d', dest='dir', help='directory with msg files')
-    parser.add_argument('-f', dest='file', help="files to convert (use only without -d)", nargs="+")
-    parser.add_argument('-i', dest="include_paths", help='Additional Include Paths', nargs="*", default=None)
-    parser.add_argument('-e', dest='templatedir', help='directory with template files',)
-    parser.add_argument('-k', dest='package', default=PACKAGE, help='package name')
-    parser.add_argument('-o', dest='outputdir', help='output directory for header files')
-    parser.add_argument('-t', dest='temporarydir', help='temporary directory')
-    parser.add_argument('-p', dest='prefix', default='', help='string added as prefix to the output file name when converting directories')
-    parser.add_argument('-q', dest='quiet', default=False, action='store_true', help='string added as prefix to the output file name when converting directories')
-    parser.add_argument('--constrained-flash', dest='constrained_flash', default=False, action='store_true', help='set to save flash space')
+    parser.add_argument('-f', dest='file',
+                        help="files to convert (use only without -d)",
+                        nargs="+")
+    parser.add_argument('-i', dest="include_paths",
+                        help='Additional Include Paths', nargs="*",
+                        default=None)
+    parser.add_argument('-e', dest='templatedir',
+                        help='directory with template files',)
+    parser.add_argument('-k', dest='package', default=PACKAGE,
+                        help='package name')
+    parser.add_argument('-o', dest='outputdir',
+                        help='output directory for header files')
+    parser.add_argument('-p', dest='prefix', default='',
+                        help='string added as prefix to the output file '
+                        ' name when converting directories')
+    parser.add_argument('--constrained-flash', dest='constrained_flash', default=False, action='store_true',
+                        help='set to save flash space')
     args = parser.parse_args()
 
     if args.include_paths:
@@ -361,20 +264,6 @@ if __name__ == "__main__":
         exit(-1)
     if args.file is not None:
         for f in args.file:
-            generate_output_from_file(generate_idx, f, args.temporarydir, args.package, args.templatedir, INCL_DEFAULT)
+            generate_output_from_file(generate_idx, f, args.outputdir, args.package, args.templatedir, INCL_DEFAULT)
 
-        # Generate topics list header and source file
-        if os.path.isfile(os.path.join(args.templatedir, TOPICS_LIST_TEMPLATE_FILE[generate_idx])):
-            generate_topics_list_file_from_files(args.file, args.outputdir, TOPICS_LIST_TEMPLATE_FILE[generate_idx], args.templatedir)
-
-        copy_changed(args.temporarydir, args.outputdir, args.prefix, args.quiet)
-    elif args.dir is not None:
-        convert_dir_save(
-            generate_idx,
-            args.dir,
-            args.outputdir,
-            args.package,
-            args.templatedir,
-            args.temporarydir,
-            args.prefix,
-            args.quiet)
+        generate_topics_list_file_from_files(args.file, args.outputdir, TOPICS_LIST_TEMPLATE_FILE[generate_idx], args.templatedir)
