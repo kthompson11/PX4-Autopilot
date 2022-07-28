@@ -14,7 +14,6 @@
 @#  - spec (msggen.MsgSpec) Parsed specification of the .msg file
 @#  - search_path (dict) search paths for genmsg
 @#  - topics (List of String) topic names
-@#  - constrained_flash set to true if flash is constrained
 @###############################################
 /****************************************************************************
  *

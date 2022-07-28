@@ -38,8 +38,7 @@
 import sys
 import os
 import argparse
-
-from uorb_rtps_classifier import Classifier
+import yaml
 
 try:
     import em
@@ -101,10 +100,6 @@ append_to_include_path({msg_dir}, INCL_DEFAULT, PACKAGE)
 # Client files output path
 client_out_dir = os.path.abspath(args.clientdir)
 
-# parse yaml file into a map of ids and messages to send and receive
-classifier = (Classifier(os.path.abspath(args.yaml_file), msg_dir) if os.path.isabs(args.yaml_file)
-              else Classifier(os.path.join(msg_dir, args.yaml_file), msg_dir))
-
 def get_topics(filename, msg_name):
     """
     Get TOPICS names from a "# TOPICS" line. If there are no multi topics defined,
@@ -126,16 +121,13 @@ def get_topics(filename, msg_name):
 
     return result
 
-def get_em_globals(filename_msg, alias, includepath, msgs, scope):
+def get_em_globals(msg_type, topic_name, includepath, msgs, scope):
     """
     Generates em globals dictionary
     """
     msg_context = genmsg.msg_loader.MsgContext.create_default()
     full_type_name = genmsg.gentools.compute_full_type_name(PACKAGE, os.path.basename(filename_msg))
     spec = genmsg.msg_loader.load_msg_from_file(msg_context, filename_msg, full_type_name)
-
-    # Get topics used for the message
-    topics = get_topics(filename_msg, spec.short_name)
 
     if includepath:
         search_path = genmsg.command_line.includepath_to_dict(includepath)
@@ -145,15 +137,14 @@ def get_em_globals(filename_msg, alias, includepath, msgs, scope):
     genmsg.msg_loader.load_depends(msg_context, spec, search_path)
 
     em_globals = {
-        "file_name_in": filename_msg,
+        "msg_type": msg_type,
         "search_path": search_path,
         "msg_context": msg_context,
         "spec": spec,
-        "topics": topics,
+        "topic_name": topic_name,
         "msgs": msgs,
         "scope": scope,
         "package": PACKAGE,
-        "alias": alias,
     }
 
     return em_globals
@@ -176,24 +167,40 @@ def merge_em_globals_list(em_globals_list):
 includepath = INCL_DEFAULT
 template_file = os.path.join(args.template_file)
 
-send_msgs = list(os.path.join(msg_dir, msg + ".msg") for msg in classifier.msgs_to_send)
-receive_msgs = list(os.path.join(msg_dir, msg + ".msg") for msg in classifier.msgs_to_receive)
-alias_send_msgs = list([os.path.join(msg_dir, msg[1] + ".msg"), msg[0]] for msg in classifier.alias_msgs_to_send)
-alias_receive_msgs = list([os.path.join(msg_dir, msg[1] + ".msg"), msg[0]] for msg in classifier.alias_msgs_to_receive)
+
+
+
+
+
+
+with open(args.yaml_file, 'r') as file:
+    msg_map = yaml.safe_load(file)
+
+
+
+print(msg_map)
+
+
+print(msg_map['publications'])
+
+print(msg_map['subscriptions'])
+
+
+
+
+
+# send_msgs = list(os.path.join(msg_dir, msg + ".msg") for msg in classifier.msgs_to_send)
+# receive_msgs = list(os.path.join(msg_dir, msg + ".msg") for msg in classifier.msgs_to_receive)
+# alias_send_msgs = list([os.path.join(msg_dir, msg[1] + ".msg"), msg[0]] for msg in classifier.alias_msgs_to_send)
+# alias_receive_msgs = list([os.path.join(msg_dir, msg[1] + ".msg"), msg[0]] for msg in classifier.alias_msgs_to_receive)
+
+msg_list = []
 
 em_globals_list = []
 
-if send_msgs:
-    em_globals_list.extend([get_em_globals(f, "", includepath, classifier.msg_list, MsgScope.SEND) for f in send_msgs])
+em_globals_list.extend([get_em_globals(f[0], f[1], includepath, msg_list, MsgScope.SEND) for f in alias_send_msgs])
 
-if alias_send_msgs:
-    em_globals_list.extend([get_em_globals(f[0], f[1], includepath, classifier.msg_list, MsgScope.SEND) for f in alias_send_msgs])
-
-if receive_msgs:
-    em_globals_list.extend([get_em_globals(f, "", includepath, classifier.msg_list, MsgScope.RECEIVE) for f in receive_msgs])
-
-if alias_receive_msgs:
-    em_globals_list.extend([get_em_globals(f[0], f[1], includepath, classifier.msg_list, MsgScope.RECEIVE) for f in alias_receive_msgs])
+em_globals_list.extend([get_em_globals(f[0], f[1], includepath, msg_list, MsgScope.RECEIVE) for f in alias_receive_msgs])
 
 merged_em_globals = merge_em_globals_list(em_globals_list)
 

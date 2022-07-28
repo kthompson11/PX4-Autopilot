@@ -159,17 +159,14 @@ def generate_output_from_file(format_idx, filename, outputdir, package, template
         search_path = {}
 
     genmsg.msg_loader.load_depends(msg_context, spec, search_path)
-    md5sum = genmsg.gentools.compute_md5(msg_context, spec)
 
     em_globals = {
         "name_snake_case": full_type_name_snake,
         "file_name_in": filename,
-        "md5sum": md5sum,
         "search_path": search_path,
         "msg_context": msg_context,
         "spec": spec,
         "topics": topics,
-        "constrained_flash": CONSTRAINED_FLASH
     }
 
     # Make sure output directory exists:
@@ -246,14 +243,10 @@ if __name__ == "__main__":
     parser.add_argument('-p', dest='prefix', default='',
                         help='string added as prefix to the output file '
                         ' name when converting directories')
-    parser.add_argument('--constrained-flash', dest='constrained_flash', default=False, action='store_true',
-                        help='set to save flash space')
     args = parser.parse_args()
 
     if args.include_paths:
         append_to_include_path(args.include_paths, INCL_DEFAULT, args.package)
-
-    CONSTRAINED_FLASH = args.constrained_flash
 
     if args.headers:
         generate_idx = 0
@@ -266,4 +259,6 @@ if __name__ == "__main__":
         for f in args.file:
             generate_output_from_file(generate_idx, f, args.outputdir, args.package, args.templatedir, INCL_DEFAULT)
 
-        generate_topics_list_file_from_files(args.file, args.outputdir, TOPICS_LIST_TEMPLATE_FILE[generate_idx], args.templatedir)
+        # Generate topics list header and source file
+        if os.path.isfile(os.path.join(args.templatedir, TOPICS_LIST_TEMPLATE_FILE[generate_idx])):
+            generate_topics_list_file_from_files(args.file, args.outputdir, TOPICS_LIST_TEMPLATE_FILE[generate_idx], args.templatedir)

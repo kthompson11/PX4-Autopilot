@@ -543,16 +543,16 @@ private:
 
 	estimator_aid_source2d_s _aid_src_fake_pos{};
 
-	estimator_aid_source_1d_s _aid_src_ev_yaw{};
+	estimator_aid_source1d_s _aid_src_ev_yaw{};
 
-	estimator_aid_source_1d_s _aid_src_gnss_yaw{};
+	estimator_aid_source1d_s _aid_src_gnss_yaw{};
 	estimator_aid_source3d_s _aid_src_gnss_vel{};
 	estimator_aid_source3d_s _aid_src_gnss_pos{};
 
-	estimator_aid_source_1d_s _aid_src_mag_heading{};
-	estimator_aid_source_3d_s _aid_src_mag{};
+	estimator_aid_source1d_s _aid_src_mag_heading{};
+	estimator_aid_source3d_s _aid_src_mag{};
 
-	estimator_aid_source_3d_s _aid_src_aux_vel{};
+	estimator_aid_source3d_s _aid_src_aux_vel{};
 
 	// output predictor states
 	Vector3f _delta_angle_corr{};	///< delta angle correction vector (rad)
@@ -652,12 +652,12 @@ private:
 	void predictCovariance();
 
 	// ekf sequential fusion of magnetometer measurements
-	bool fuseMag(const Vector3f &mag, estimator_aid_source_3d_s &aid_src_mag, bool update_all_states = true);
+	bool fuseMag(const Vector3f &mag, estimator_aid_source3d_s &aid_src_mag, bool update_all_states = true);
 
 	// update quaternion states and covariances using an innovation, observation variance and Jacobian vector
 	// innovation : prediction - measurement
 	// variance : observaton variance
-	bool fuseYaw(const float innovation, const float variance, estimator_aid_source_1d_s& aid_src_status);
+	bool fuseYaw(const float innovation, const float variance, estimator_aid_source1d_s& aid_src_status);
 
 	// fuse the yaw angle obtained from a dual antenna GPS unit
 	void fuseGpsYaw();
@@ -720,11 +720,11 @@ private:
 	// fuse optical flow line of sight rate measurements
 	void fuseOptFlow();
 
-	void updateVelocityAidSrcStatus(const uint64_t& sample_time_us, const Vector3f& velocity, const Vector3f& obs_var, const float innov_gate, estimator_aid_source_3d_s& vel_aid_src) const;
-	void updatePositionAidSrcStatus(const uint64_t& sample_time_us, const Vector3f& position, const Vector3f& obs_var, const float innov_gate, estimator_aid_source_3d_s& pos_aid_src) const;
+	void updateVelocityAidSrcStatus(const uint64_t& sample_time_us, const Vector3f& velocity, const Vector3f& obs_var, const float innov_gate, estimator_aid_source3d_s& vel_aid_src) const;
+	void updatePositionAidSrcStatus(const uint64_t& sample_time_us, const Vector3f& position, const Vector3f& obs_var, const float innov_gate, estimator_aid_source3d_s& pos_aid_src) const;
 
-	void fuseVelocity(estimator_aid_source_3d_s& vel_aid_src);
-	void fusePosition(estimator_aid_source_3d_s& pos_aid_src);
+	void fuseVelocity(estimator_aid_source3d_s& vel_aid_src);
+	void fusePosition(estimator_aid_source3d_s& pos_aid_src);
 
 	bool fuseHorizontalVelocity(const Vector3f &innov, float innov_gate, const Vector3f &obs_var,
 				    Vector3f &innov_var, Vector2f &test_ratio);

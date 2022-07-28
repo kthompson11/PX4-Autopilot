@@ -51,6 +51,19 @@
 
 using namespace time_literals;
 
+int64_t avg_time_offset = 0;
+size_t sample_id = 0;
+
+void on_time(uxrSession *session, int64_t current_time, int64_t transmit_timestamp, int64_t received_timestamp,
+	     int64_t originate_timestamp, void *args)
+{
+	(void) args;
+	int64_t current_time_offset = ((current_time - originate_timestamp) - (transmit_timestamp - received_timestamp)) / 2;
+	avg_time_offset = (avg_time_offset * sample_id + current_time_offset) / (sample_id + 1);
+	++sample_id;
+	session->time_offset = avg_time_offset;
+}
+
 MicroddsClient::MicroddsClient(Transport transport, const char *device, int baudrate, const char *host,
 			       const char *port, bool localhost_only)
 	: _localhost_only(localhost_only)
@@ -155,6 +168,7 @@ void MicroddsClient::run()
 		uint8_t output_reliable_stream_buffer[BUFFER_SIZE] {};
 		uxrStreamId reliable_out = uxr_create_output_reliable_stream(&session, output_reliable_stream_buffer, BUFFER_SIZE,
 					   STREAM_HISTORY);
+
 		uint8_t output_data_stream_buffer[1024] {};
 		uxrStreamId data_out = uxr_create_output_best_effort_stream(&session, output_data_stream_buffer,
 				       sizeof(output_data_stream_buffer));
@@ -274,6 +288,11 @@ void MicroddsClient::run()
 				last_num_payload_received = _pubs->num_payload_received;
 				last_status_update = now;
 			}
+
+
+			// Set time-callback.
+			uxr_set_time_callback(&session, on_time, nullptr);
+			// PX4_INFO("synchronized with time offset %-5" PRId64 "us\n", session.time_offset / 1000);
 
 			// Handle ping
 			if (now - last_ping > 500_ms) {
