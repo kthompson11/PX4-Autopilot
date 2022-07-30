@@ -666,7 +666,7 @@ private:
 
 	// reset the quaternions states using the yaw angle obtained from a dual antenna GPS unit
 	// return true if the reset was successful
-	bool resetYawToGps();
+	bool resetYawToGps(const float gnss_yaw);
 
 	// fuse magnetometer declination measurement
 	// argument passed in is the declination uncertainty in radians
@@ -786,7 +786,7 @@ private:
 
 	// Do a forced re-alignment of the yaw angle to align with the horizontal velocity vector from the GPS.
 	// It is used to align the yaw angle after launch or takeoff for fixed wing vehicle.
-	bool realignYawGPS(const Vector3f &mag);
+	bool realignYawGPS(const Vector3f gnss_velocity, const float speed_accuracy);
 
 	// Return the magnetic declination in radians to be used by the alignment and fusion processing
 	float getMagDeclination();
@@ -902,12 +902,9 @@ private:
 	// control fusion of magnetometer observations
 	void controlMagFusion();
 
-	void checkHaglYawResetReq();
 	float getTerrainVPos() const { return isTerrainEstimateValid() ? _terrain_vpos : _last_on_ground_posD; }
 
-	void runOnGroundYawReset();
-	bool canResetMagHeading() const;
-	void runInAirYawReset(const Vector3f &mag);
+	bool resetMagStates();
 
 	void selectMagAuto();
 	void check3DMagFusionSuitability();
@@ -1052,12 +1049,10 @@ private:
 	void startAirspeedFusion();
 	void stopAirspeedFusion();
 
-	void startGpsFusion();
 	void stopGpsFusion();
 	void stopGpsPosFusion();
 	void stopGpsVelFusion();
 
-	void startGpsYawFusion();
 	void stopGpsYawFusion();
 
 	void startEvPosFusion();

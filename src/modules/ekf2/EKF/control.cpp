@@ -609,7 +609,7 @@ void Ekf::controlGpsYawFusion(bool gps_checks_passing, bool gps_checks_failing)
 				if (is_fusion_failing) {
 					if (_nb_gps_yaw_reset_available > 0) {
 						// Data seems good, attempt a reset
-						resetYawToGps();
+						resetYawToGps(_gps_sample_delayed.yaw);
 
 						if (_control_status.flags.in_air) {
 							_nb_gps_yaw_reset_available--;
@@ -638,9 +638,15 @@ void Ekf::controlGpsYawFusion(bool gps_checks_passing, bool gps_checks_failing)
 		} else {
 			if (starting_conditions_passing) {
 				// Try to activate GPS yaw fusion
-				startGpsYawFusion();
+				if (!_control_status.flags.gps_yaw && resetYawToGps(_gps_sample_delayed.yaw)) {
 
-				if (_control_status.flags.gps_yaw) {
+					stopEvYawFusion();
+					stopMagFusion();
+
+					ECL_INFO("starting GPS yaw fusion");
+					_control_status.flags.yaw_align = true;
+					_control_status.flags.gps_yaw = true;
+
 					_nb_gps_yaw_reset_available = 1;
 				}
 			}
