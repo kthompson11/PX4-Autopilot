@@ -46,10 +46,11 @@
 
 @{
 import genmsg.msgs
+import re
 from px_generate_uorb_topic_helper import * # this is in Tools/
 
-topic = spec.short_name
-uorb_struct = '%s_s'%spec.short_name
+topic = name_snake_case
+uorb_struct = '%s_s'%name_snake_case
 
 # get fields, struct size and paddings
 def add_fields(msg_fields, name_prefix='', offset=0):
@@ -114,7 +115,8 @@ for field in spec.parsed_fields():
         if not field.is_header:
             (package, name) = genmsg.names.package_resource_name(field.base_type)
             package = package or spec.package # convert '' to package
-            print('#include <uORB/ucdr/%s.h>'%(name))
+            name_snake = re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
+            print('#include <uORB/ucdr/%s.h>'%(name_snake))
 }@
 
 static inline constexpr int ucdr_topic_size_@(topic)()

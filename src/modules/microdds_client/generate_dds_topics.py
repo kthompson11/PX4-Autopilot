@@ -38,27 +38,9 @@
 import sys
 import os
 import argparse
+import re
+import em
 import yaml
-
-try:
-    import em
-except ImportError as e:
-    print("Failed to import em: " + str(e))
-    print("")
-    print("You may need to install it using:")
-    print("    pip3 install --user empy")
-    print("")
-    sys.exit(1)
-
-try:
-    import genmsg.template_tools
-except ImportError as e:
-    print("Failed to import genmsg: " + str(e))
-    print("")
-    print("You may need to install it using:")
-    print("    pip3 install --user pyros-genmsg")
-    print("")
-    sys.exit(1)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-m", "--topic-msg-dir", dest='msgdir', type=str,
@@ -80,129 +62,9 @@ if len(sys.argv) <= 1:
 # Parse arguments
 args = parser.parse_args()
 
-class MsgScope:
-    NONE = 0
-    SEND = 1
-    RECEIVE = 2
-
-PACKAGE = 'px4'
-INCL_DEFAULT = ['std_msgs:./msg/std_msgs']
-TOPICS_TOKEN = '# TOPICS '
-
-def append_to_include_path(path_to_append, curr_include, package):
-    for p in path_to_append:
-        curr_include.append('%s:%s' % (package, p))
-
-# Msg files path
-msg_dir = os.path.abspath(args.msgdir)
-append_to_include_path({msg_dir}, INCL_DEFAULT, PACKAGE)
-
 # Client files output path
 client_out_dir = os.path.abspath(args.clientdir)
-
-def get_topics(filename, msg_name):
-    """
-    Get TOPICS names from a "# TOPICS" line. If there are no multi topics defined,
-    set topic name same as the message name, since the user doesn't expect any new
-    custom topic names.
-    """
-    ofile = open(filename, 'r')
-    text = ofile.read()
-    result = []
-    for each_line in text.split('\n'):
-        if each_line.startswith(TOPICS_TOKEN):
-            topic_names_str = each_line.strip()
-            topic_names_str = topic_names_str.replace(TOPICS_TOKEN, "")
-            result.extend(topic_names_str.split(" "))
-    ofile.close()
-
-    if len(result) == 0:
-        result.append(msg_name)
-
-    return result
-
-def get_em_globals(msg_type, topic_name, includepath, msgs, scope):
-    """
-    Generates em globals dictionary
-    """
-    msg_context = genmsg.msg_loader.MsgContext.create_default()
-    full_type_name = genmsg.gentools.compute_full_type_name(PACKAGE, os.path.basename(filename_msg))
-    spec = genmsg.msg_loader.load_msg_from_file(msg_context, filename_msg, full_type_name)
-
-    if includepath:
-        search_path = genmsg.command_line.includepath_to_dict(includepath)
-    else:
-        search_path = {}
-
-    genmsg.msg_loader.load_depends(msg_context, spec, search_path)
-
-    em_globals = {
-        "msg_type": msg_type,
-        "search_path": search_path,
-        "msg_context": msg_context,
-        "spec": spec,
-        "topic_name": topic_name,
-        "msgs": msgs,
-        "scope": scope,
-        "package": PACKAGE,
-    }
-
-    return em_globals
-
-
-def merge_em_globals_list(em_globals_list):
-    """
-        Merges a list of em_globals to a single dictionary where each attribute is a list
-    """
-    if len(em_globals_list) < 1:
-        return {}
-
-    merged_em_globals = {}
-    for name in em_globals_list[0]:
-        merged_em_globals[name] = [em_globals[name] for em_globals in em_globals_list]
-
-    return merged_em_globals
-
-
-includepath = INCL_DEFAULT
 template_file = os.path.join(args.template_file)
-
-
-
-
-
-
-
-with open(args.yaml_file, 'r') as file:
-    msg_map = yaml.safe_load(file)
-
-
-
-print(msg_map)
-
-
-print(msg_map['publications'])
-
-print(msg_map['subscriptions'])
-
-
-
-
-
-# send_msgs = list(os.path.join(msg_dir, msg + ".msg") for msg in classifier.msgs_to_send)
-# receive_msgs = list(os.path.join(msg_dir, msg + ".msg") for msg in classifier.msgs_to_receive)
-# alias_send_msgs = list([os.path.join(msg_dir, msg[1] + ".msg"), msg[0]] for msg in classifier.alias_msgs_to_send)
-# alias_receive_msgs = list([os.path.join(msg_dir, msg[1] + ".msg"), msg[0]] for msg in classifier.alias_msgs_to_receive)
-
-msg_list = []
-
-em_globals_list = []
-
-em_globals_list.extend([get_em_globals(f[0], f[1], includepath, msg_list, MsgScope.SEND) for f in alias_send_msgs])
-
-em_globals_list.extend([get_em_globals(f[0], f[1], includepath, msg_list, MsgScope.RECEIVE) for f in alias_receive_msgs])
-
-merged_em_globals = merge_em_globals_list(em_globals_list)
 
 # Make sure output directory exists:
 if not os.path.isdir(client_out_dir):
@@ -214,8 +76,44 @@ folder_name = os.path.dirname(output_file)
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
 
-ofile = open(output_file, 'w')
 
+
+# open yaml file to load dictionary of publications and subscriptions
+with open(args.yaml_file, 'r') as file:
+    msg_map = yaml.safe_load(file)
+
+merged_em_globals = {}
+all_type_includes = []
+
+for p in msg_map['publications']:
+    # eg TrajectoryWaypoint from px4_msgs::msg::TrajectoryWaypoint
+    simple_base_type = p['type'].split('::')[-1]
+
+    # eg TrajectoryWaypoint -> trajectory_waypoint
+    base_type_name_snake_case = re.sub(r'(?<!^)(?=[A-Z])', '_', simple_base_type).lower()
+    all_type_includes.append(base_type_name_snake_case)
+    p['simple_base_type'] = base_type_name_snake_case
+    p['topic_simple'] = p['topic'].split('/')[-1]
+
+merged_em_globals['publications'] = msg_map['publications']
+
+for s in msg_map['subscriptions']:
+    # eg TrajectoryWaypoint from px4_msgs::msg::TrajectoryWaypoint
+    simple_base_type = s['type'].split('::')[-1]
+
+    # eg TrajectoryWaypoint -> trajectory_waypoint
+    base_type_name_snake_case = re.sub(r'(?<!^)(?=[A-Z])', '_', simple_base_type).lower()
+    all_type_includes.append(base_type_name_snake_case)
+    s['simple_base_type'] = base_type_name_snake_case
+    s['topic_simple'] = s['topic'].split('/')[-1]
+
+merged_em_globals['subscriptions'] = msg_map['subscriptions']
+
+merged_em_globals['type_includes'] = sorted(set(all_type_includes))
+
+
+# run interpreter
+ofile = open(output_file, 'w')
 interpreter = em.Interpreter(output=ofile, globals=merged_em_globals, options={em.RAW_OPT: True, em.BUFFERED_OPT: True})
 
 try:
