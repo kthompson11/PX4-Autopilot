@@ -45,6 +45,7 @@
 #include <cstdint>
 
 #include <matrix/math.hpp>
+#include <mathlib/math/Utilities.hpp>
 
 namespace estimator
 {
@@ -57,6 +58,12 @@ using matrix::Quatf;
 using matrix::Vector2f;
 using matrix::Vector3f;
 using matrix::wrap_pi;
+
+using math::Utilities::getEulerYaw;
+using math::Utilities::quatToInverseRotMat;
+using math::Utilities::shouldUse321RotationSequence;
+using math::Utilities::sq;
+using math::Utilities::updateYawInRotMat;
 
 // maximum sensor intervals in usec
 #define BARO_MAX_INTERVAL (uint64_t)2e5 ///< Maximum allowable time interval between pressure altitude measurements (uSec)
@@ -207,7 +214,7 @@ struct extVisionSample {
 	Vector3f    vel{};         ///< FRD velocity in reference frame defined in vel_frame variable (m/sec) - Z must be aligned with down axis
 	Quatf       quat{};        ///< quaternion defining rotation from body to earth frame
 	Vector3f    posVar{};      ///< XYZ position variances (m**2)
-	Matrix3f    velCov{};      ///< XYZ velocity covariances ((m/sec)**2)
+	Vector3f    velVar{};      ///< XYZ velocity variances ((m/sec)**2)
 	float       angVar{};      ///< angular heading variance (rad**2)
 	VelocityFrame vel_frame = VelocityFrame::BODY_FRAME_FRD;
 	uint8_t     reset_counter{};
