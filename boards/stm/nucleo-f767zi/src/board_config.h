@@ -250,14 +250,6 @@ static inline bool board_get_external_lockout_state(void)
  */
 #define DIRECT_PWM_OUTPUT_CHANNELS  2
 
-#define BOARD_HAS_LED_PWM              1
-#define BOARD_LED_PWM_DRIVE_ACTIVE_LOW 1
-
-#define BOARD_HAS_UI_LED_PWM            1
-
-#define BOARD_UI_LED_PWM_DRIVE_ACTIVE_LOW 1
-
-
 /* Power supply control and monitoring GPIOs */
 
 #define GPIO_nPOWER_IN_A                /* PG1  */ (GPIO_INPUT|GPIO_PULLUP|GPIO_PORTG|GPIO_PIN1)
