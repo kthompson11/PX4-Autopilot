@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+# PX4 FMUv5 specific board sensors init
+#------------------------------------------------------------------------------
+
+board_adc start
