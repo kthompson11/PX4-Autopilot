@@ -248,7 +248,7 @@ static inline bool board_get_external_lockout_state(void)
 
 /* PWM
  */
-#define DIRECT_PWM_OUTPUT_CHANNELS  11
+#define DIRECT_PWM_OUTPUT_CHANNELS  2
 
 #define BOARD_HAS_LED_PWM              1
 #define BOARD_LED_PWM_DRIVE_ACTIVE_LOW 1
