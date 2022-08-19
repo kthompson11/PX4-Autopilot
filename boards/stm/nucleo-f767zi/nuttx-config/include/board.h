@@ -309,29 +309,14 @@
 
 /* Alternate function pin selections ************************************************/
 
-#define GPIO_USART1_RX   GPIO_USART1_RX_2    /* PB7 */
-#define GPIO_USART1_TX   GPIO_USART1_TX_2    /* PB6 */
-
 #define GPIO_USART2_RX   GPIO_USART2_RX_2   /* PD6 */
 #define GPIO_USART2_TX   GPIO_USART2_TX_2   /* PD5 */
-#define GPIO_USART2_RTS  GPIO_USART2_RTS_2  /* PD4 */
-#define GPIO_USART2_CTS  GPIO_USART2_CTS_2  /* PD3 */
-
-#define GPIO_USART3_RX   GPIO_USART3_RX_3   /* PD9  */
-#define GPIO_USART3_TX   GPIO_USART3_TX_3   /* PD8  */
-#define GPIO_USART3_RTS  GPIO_USART3_RTS_2  /* PD12 */
-#define GPIO_USART3_CTS  GPIO_USART3_CTS_2  /* PD11 */
-
-#define GPIO_UART4_RX    GPIO_UART4_RX_4    /* PD0 */
-#define GPIO_UART4_TX    GPIO_UART4_TX_4    /* PD1 */
 
 #define GPIO_USART6_RX   GPIO_USART6_RX_2   /* PG9  */
 #define GPIO_USART6_TX   GPIO_USART6_TX_2   /* PG14 */
-#define GPIO_USART6_RTS  GPIO_USART6_RTS_2  /* PG8  */
-#define GPIO_USART6_CTS  GPIO_USART6_CTS_2  /* PG15 */
 
-#define GPIO_UART7_RX    GPIO_UART7_RX_2    /* PF6 */
-#define GPIO_UART7_TX    GPIO_UART7_TX_1    /* PE8 */
+#define GPIO_UART7_RX    GPIO_UART7_RX_4    /* PF6 */
+#define GPIO_UART7_TX    GPIO_UART7_TX_4    /* PE8 */
 
 /* USART8: has no remap
  *
@@ -353,13 +338,13 @@
 #define GPIO_CAN3_TX     GPIO_CAN3_TX_1     /* PA15 */
 
 /* SPI
- * SPI3 - defined but unused
+ * SPI1 - defined but unused
  *
  */
 
-#define GPIO_SPI3_MISO   GPIO_SPI3_MISO_1   /* PB4 */
-#define GPIO_SPI3_MOSI   GPIO_SPI3_MOSI_2   /* PB5 */
-#define GPIO_SPI3_SCK    GPIO_SPI3_SCK_1    /* PB3 */
+#define GPIO_SPI1_MISO   GPIO_SPI1_MISO_1   /* PA6 */
+#define GPIO_SPI1_MOSI   GPIO_SPI1_MOSI_1   /* PA7 */
+#define GPIO_SPI1_SCK    GPIO_SPI1_SCK_1    /* PA5 */
 
 /* I2C
  *
