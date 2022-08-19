@@ -32,8 +32,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ************************************************************************************/
-#ifndef __NUTTX_CONFIG_PX4_FMU_V5_INCLUDE_BOARD_H
-#define __NUTTX_CONFIG_PX4_FMU_V5_INCLUDE_BOARD_H
+#ifndef __NUTTX_CONFIG_STM_NUCLEO_767ZI_INCLUDE_BOARD_H
+#define __NUTTX_CONFIG_STM_NUCLEO_767ZI_INCLUDE_BOARD_H
 
 /************************************************************************************
  * Included Files
@@ -353,32 +353,13 @@
 #define GPIO_CAN3_TX     GPIO_CAN3_TX_1     /* PA15 */
 
 /* SPI
- * SPI1 sensors
- * SPI2 is FRAM.
- * SPI4 is BARO
- * SPI6 Reserved
+ * SPI3 - defined but unused
  *
  */
 
-#define GPIO_SPI1_MISO   GPIO_SPI1_MISO_1   /* PA6 */
-#define GPIO_SPI1_MOSI   GPIO_SPI1_MOSI_3   /* PD7 */
-#define GPIO_SPI1_SCK    GPIO_SPI1_SCK_3    /* PG11 */
-
-#define GPIO_SPI2_MISO   GPIO_SPI2_MISO_3   /* PI2 */
-#define GPIO_SPI2_MOSI   GPIO_SPI2_MOSI_3   /* PI3 */
-#define GPIO_SPI2_SCK    GPIO_SPI2_SCK_5    /* PI1 */
-
-#define GPIO_SPI4_MISO   GPIO_SPI4_MISO_2   /* PE13 */
-#define GPIO_SPI4_MOSI   GPIO_SPI4_MOSI_1   /* PE6 */
-#define GPIO_SPI4_SCK    GPIO_SPI4_SCK_1    /* PE2 */
-
-#define GPIO_SPI5_MISO   GPIO_SPI5_MISO_1   /* PF8 */
-#define GPIO_SPI5_MOSI   GPIO_SPI5_MOSI_1   /* PF9 */
-#define GPIO_SPI5_SCK    GPIO_SPI5_SCK_1    /* PF7 */
-
-#define GPIO_SPI6_MISO   GPIO_SPI6_MISO_1   /* PG12 */
-#define GPIO_SPI6_MOSI   GPIO_SPI6_MOSI_3   /* PB5 */
-#define GPIO_SPI6_SCK    GPIO_SPI6_SCK_1    /* PG13 */
+#define GPIO_SPI3_MISO   GPIO_SPI3_MISO_1   /* PB4 */
+#define GPIO_SPI3_MOSI   GPIO_SPI3_MOSI_2   /* PB5 */
+#define GPIO_SPI3_SCK    GPIO_SPI3_SCK_1    /* PB3 */
 
 /* I2C
  *
@@ -394,29 +375,11 @@
  *
  */
 
-#define GPIO_I2C1_SCL GPIO_I2C1_SCL_2       /* PB8]  */
+#define GPIO_I2C1_SCL GPIO_I2C1_SCL_2       /* PB8  */
 #define GPIO_I2C1_SDA GPIO_I2C1_SDA_2       /* PB9  */
 
 #define GPIO_I2C1_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN8)
 #define GPIO_I2C1_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN9)
-
-#define GPIO_I2C2_SCL GPIO_I2C2_SCL_2       /* PF1 */
-#define GPIO_I2C2_SDA GPIO_I2C2_SDA_2       /* PF0 */
-
-#define GPIO_I2C2_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTF | GPIO_PIN1)
-#define GPIO_I2C2_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTF | GPIO_PIN0)
-
-#define GPIO_I2C3_SCL GPIO_I2C3_SCL_2       /* PH7 */
-#define GPIO_I2C3_SDA GPIO_I2C3_SDA_2       /* PH8 */
-
-#define GPIO_I2C3_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTH | GPIO_PIN7)
-#define GPIO_I2C3_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTH | GPIO_PIN8)
-
-#define GPIO_I2C4_SCL GPIO_I2C4_SCL_2       /* PF14 */
-#define GPIO_I2C4_SDA GPIO_I2C4_SDA_2       /* PF15 */
-
-#define GPIO_I2C4_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN | GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTF | GPIO_PIN14)
-#define GPIO_I2C4_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN | GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTF | GPIO_PIN15)
 
 /* SDMMC1
  *
@@ -479,4 +442,4 @@
 # define PROBE_MARK(n)
 #endif
 
-#endif  /*__NUTTX_CONFIG_PX4_FMU_V5_INCLUDE_BOARD_H  */
+#endif  /*__NUTTX_CONFIG_STM_NUCLEO_767ZI_INCLUDE_BOARD_H  */
