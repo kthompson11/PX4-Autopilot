@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include <drivers/drv_hrt.h>
+#include <lib/mathlib/math/filter/MedianFilter.hpp>
 #include <lib/perf/perf_counter.h>
 #include <px4_platform_common/log.h>
 #include <px4_platform_common/module.h>
@@ -41,9 +42,10 @@ public:
 private:
 	void Run() override;
 
-	float calculate_arm_angle(const adc_report_s &report);
+	float calculate_sensed_arm_angle(const adc_report_s &report);
 
 	int _adc_sensor_index{-1};
+	math::MedianFilter<float, 3> _filter;
 
 	uORB::Publication<arm_state_s> _arm_state_pub{ORB_ID(arm_state)};
 

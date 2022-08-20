@@ -35,11 +35,17 @@ void ArmStateEstimator::Run()
 		return;
 	}
 
-	const float theta = calculate_arm_angle(report);
-	const float degrees = math::degrees(theta);
+	// TODO: kalman filter
+	const float theta = calculate_sensed_arm_angle(report);
+	float angle_radians = _filter.apply(theta);
+
+	arm_state_s state{};
+	state.timestamp = hrt_absolute_time();
+	state.angle = angle_radians;
+	_arm_state_pub.publish(state);
 }
 
-float ArmStateEstimator::calculate_arm_angle(const adc_report_s &report)
+float ArmStateEstimator::calculate_sensed_arm_angle(const adc_report_s &report)
 {
 	float angle = NAN;
 
