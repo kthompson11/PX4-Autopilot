@@ -41,7 +41,6 @@ add_library(drivers_board
 	can.c
 	init.c
 	led.c
-	manifest.c
 	sdio.c
 	timer_config.cpp
 	usb.c

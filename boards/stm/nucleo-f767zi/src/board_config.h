@@ -116,73 +116,29 @@
 /* Define GPIO pins used as ADC N.B. Channel numbers must match below */
 
 #define PX4_ADC_GPIO  \
-	/* PA0 */  ADC1_GPIO(0),  \
-	/* PA1 */  ADC1_GPIO(1),  \
-	/* PA2 */  ADC1_GPIO(2),  \
 	/* PA3 */  ADC1_GPIO(3),  \
-	/* PA4 */  ADC1_GPIO(4),  \
-	/* PB8 */  ADC1_GPIO(8),  \
 	/* PC0 */  ADC1_GPIO(10), \
-	/* PC1 */  ADC1_GPIO(11), \
-	/* PC2 */  ADC1_GPIO(12), \
 	/* PC3 */  ADC1_GPIO(13), \
-	/* PC4 */  ADC1_GPIO(14)
+	/* PF3 */  ADC1_GPIO(9)
 
 /* Define Channel numbers must match above GPIO pin IN(n)*/
 
-#define ADC_BATTERY1_VOLTAGE_CHANNEL        /* PA0 */  ADC1_CH(0)
-#define ADC_BATTERY1_CURRENT_CHANNEL        /* PA1 */  ADC1_CH(1)
-#define ADC_BATTERY2_VOLTAGE_CHANNEL        /* PA2 */  ADC1_CH(2)
-#define ADC_BATTERY2_CURRENT_CHANNEL        /* PA3 */  ADC1_CH(3)
-#define ADC1_SPARE_2_CHANNEL                /* PA4 */  ADC1_CH(4)
-#define ADC_RSSI_IN_CHANNEL                 /* PB0 */  ADC1_CH(8)
-#define ADC_SCALED_V5_CHANNEL               /* PC0 */  ADC1_CH(10)
-#define ADC_SCALED_VDD_3V3_SENSORS_CHANNEL  /* PC1 */  ADC1_CH(11)
-#define ADC_HW_VER_SENSE_CHANNEL            /* PC2 */  ADC1_CH(12)
-#define ADC_HW_REV_SENSE_CHANNEL            /* PC3 */  ADC1_CH(13)
-#define ADC1_SPARE_1_CHANNEL                /* PC4 */  ADC1_CH(14)
+#define ADC_INPUT1			    /* PA3 */  ADC1_CH(3)
+#define ADC_INPUT2			    /* PC0 */  ADC1_CH(10)
+#define ADC_INPUT3			    /* PC3 */  ADC1_CH(13)
+#define ADC_INPUT4			    /* PF3 */  ADC1_CH(9)
 
-#if BOARD_HAS_NBAT_V == 2 && BOARD_HAS_NBAT_I == 2
 #define ADC_CHANNELS \
-	((1 << ADC_BATTERY1_VOLTAGE_CHANNEL)       | \
-	 (1 << ADC_BATTERY1_CURRENT_CHANNEL)       | \
-	 (1 << ADC_BATTERY2_VOLTAGE_CHANNEL)       | \
-	 (1 << ADC_BATTERY2_CURRENT_CHANNEL)       | \
-	 (1 << ADC1_SPARE_2_CHANNEL)               | \
-	 (1 << ADC_RSSI_IN_CHANNEL)                | \
-	 (1 << ADC_SCALED_V5_CHANNEL)              | \
-	 (1 << ADC_SCALED_VDD_3V3_SENSORS_CHANNEL) | \
-	 (1 << ADC_HW_VER_SENSE_CHANNEL)           | \
-	 (1 << ADC_HW_REV_SENSE_CHANNEL)           | \
-	 (1 << ADC1_SPARE_1_CHANNEL))
-#elif BOARD_HAS_NBAT_V == 1 && BOARD_HAS_NBAT_I == 1
-#define ADC_CHANNELS \
-	((1 << ADC_BATTERY1_VOLTAGE_CHANNEL)       | \
-	 (1 << ADC_BATTERY1_CURRENT_CHANNEL)       | \
-	 (1 << ADC1_SPARE_2_CHANNEL)               | \
-	 (1 << ADC_RSSI_IN_CHANNEL)                | \
-	 (1 << ADC_SCALED_V5_CHANNEL)              | \
-	 (1 << ADC_SCALED_VDD_3V3_SENSORS_CHANNEL) | \
-	 (1 << ADC_HW_VER_SENSE_CHANNEL)           | \
-	 (1 << ADC_HW_REV_SENSE_CHANNEL)           | \
-	 (1 << ADC1_SPARE_1_CHANNEL))
-#elif BOARD_HAS_NBAT_V == 1 && BOARD_HAS_NBAT_I == 0
-#define ADC_CHANNELS \
-	((1 << ADC_BATTERY1_VOLTAGE_CHANNEL)       | \
-	 (1 << ADC1_SPARE_2_CHANNEL)               | \
-	 (1 << ADC_RSSI_IN_CHANNEL)                | \
-	 (1 << ADC_SCALED_V5_CHANNEL)              | \
-	 (1 << ADC_SCALED_VDD_3V3_SENSORS_CHANNEL) | \
-	 (1 << ADC_HW_VER_SENSE_CHANNEL)           | \
-	 (1 << ADC_HW_REV_SENSE_CHANNEL)           | \
-	 (1 << ADC1_SPARE_1_CHANNEL))
-#endif
+	((1 << ADC_INPUT1)	| \
+	 (1 << ADC_INPUT2)	| \
+	 (1 << ADC_INPUT3)	| \
+	 (1 << ADC_INPUT4))
 
 /* HW has to large of R termination on ADC todo:change when HW value is chosen */
 #define BOARD_ADC_OPEN_CIRCUIT_V     (5.6f)
 
 /* HW Version and Revision drive signals Default to 1 to detect */
-#define BOARD_HAS_HW_VERSIONING
+//#define BOARD_HAS_HW_VERSIONING
 
 #define GPIO_HW_REV_DRIVE    /* PH14  */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_SET|GPIO_PORTH|GPIO_PIN14)
 #define GPIO_HW_REV_SENSE    /* PC3   */ ADC1_GPIO(13)
