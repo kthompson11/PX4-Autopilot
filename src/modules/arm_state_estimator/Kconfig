@@ -1,0 +1,5 @@
+menuconfig MODULES_ARM_STATE_ESTIMATOR
+	bool "arm_state_estimator"
+	default n
+	---help---
+		Enable enable the copter arm state estimator

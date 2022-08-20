@@ -1,0 +1,37 @@
+module_name: arm_state_estimator
+
+parameters:
+    - group: Copter Arm
+      definitions:
+        ARM_STATE_CH:
+            description:
+                short: ADC channel to read the arm state from
+                long: |
+                    The voltage read from this channel with be used to
+                    calculate the angle of the arm.
+
+            type: int32
+            reboot_required: true
+            default: -1
+
+        ARM_STATE_OFFSET:
+            description:
+                short: Arm sensor voltage offset
+                long: |
+                    The voltage offset to apply to the measured arm sensor
+                    voltage before multiplying by the scale factor.
+
+            type: float
+            reboot_required: true
+            default: 1.65
+
+        ARM_STATE_SCALE:
+            description:
+                short: Arm sensor scale factor
+                long: |
+                    This value will be multiplied with the offset arm sensor
+                    voltage to determine the measured arm angle.
+
+            type: float
+            reboot_required: true
+            default: 1.745
