@@ -54,6 +54,7 @@ target_link_libraries(drivers_board
 		drivers__led # drv_led_start
 		nuttx_arch # sdio
 		nuttx_drivers # sdio
+		flashparams
 )
 
 if (NOT DEFINED CONFIG_BUILD_FLAT)

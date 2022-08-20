@@ -75,6 +75,8 @@
 #include <px4_platform/board_determine_hw_info.h>
 #include <px4_platform/board_dma_alloc.h>
 
+#include <parameters/flashparams/flashfs.h>
+
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
@@ -226,6 +228,20 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 	/* configure SPI interfaces (after we determined the HW version) */
 
 	stm32_spiinitialize();
+
+	/* configure the flash based parameters */
+	static sector_descriptor_t params_sector_map[] = {
+		{126, 16 * 1024, 0x081f8000},
+		{127, 16 * 1024, 0x081fc000},
+		{0, 0, 0},
+	};
+
+	/* Initialize the flashfs layer to use heap allocated memory */
+	int result = parameter_flashfs_init(params_sector_map, NULL, 0);
+
+	if (result != OK) {
+		syslog(LOG_ERR, "[boot] FAILED to init params in FLASH %d\n", result);
+	}
 
 	/* configure the DMA allocator */
 

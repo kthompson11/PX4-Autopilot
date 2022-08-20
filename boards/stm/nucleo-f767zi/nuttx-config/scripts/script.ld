@@ -71,8 +71,8 @@
 
 MEMORY
 {
-    FLASH_ITCM (rx) : ORIGIN = 0x00200000, LENGTH = 2016K
-    FLASH_AXIM (rx) : ORIGIN = 0x08000000, LENGTH = 2016K
+    FLASH_ITCM (rx) : ORIGIN = 0x00200000, LENGTH = 2048K - (2 * 16k)
+    FLASH_AXIM (rx) : ORIGIN = 0x08000000, LENGTH = 2048K - (2 * 16k) /* Full flash size minus 2 16kB pages for params */
 
     ITCM_RAM (rwx) : ORIGIN = 0x00000000, LENGTH = 16K
     DTCM_RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 128K

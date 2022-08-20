@@ -22,6 +22,14 @@ set R /
 ver all
 
 #
+# Load parameters.
+#
+if ! param load
+then
+	param reset_all
+fi
+
+#
 # Optional board defaults: rc.board_defaults
 #
 set BOARD_RC_DEFAULTS ${R}etc/init.d/rc.board_defaults
