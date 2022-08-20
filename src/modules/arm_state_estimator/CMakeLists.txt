@@ -1,6 +1,6 @@
 
 px4_add_module(
-	MODULE modules_arm_state_estimator
+	MODULE modules__arm_state_estimator
 	MAIN arm_state_estimator
 	MODULE_CONFIG
 		module.yaml
