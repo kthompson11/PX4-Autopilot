@@ -156,15 +156,6 @@
 #define V560   HW_VER_REV(0x6,0x0) // CUAV V5nano with can 2,   Rev 0
 #define V562   HW_VER_REV(0x6,0x2) // CUAV V5nano ICM42688P,    Rev 2
 
-/* CAN Silence
- *
- * Silent mode control \ ESC Mux select
- */
-
-#define GPIO_CAN1_SILENT_S0  /* PH2  */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTH|GPIO_PIN2)
-#define GPIO_CAN2_SILENT_S1  /* PH3  */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTH|GPIO_PIN3)
-#define GPIO_CAN3_SILENT_S2  /* PH4  */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTH|GPIO_PIN4)
-
 #define UAVCAN_NUM_IFACES_RUNTIME 1
 
 /* HEATER
@@ -382,15 +373,6 @@ static inline bool board_get_external_lockout_state(void)
 		PX4_ADC_GPIO,                     \
 		GPIO_HW_REV_DRIVE,                \
 		GPIO_HW_VER_DRIVE,                \
-		GPIO_CAN1_TX,                     \
-		GPIO_CAN1_RX,                     \
-		GPIO_CAN2_TX,                     \
-		GPIO_CAN2_RX,                     \
-		GPIO_CAN3_TX,                     \
-		GPIO_CAN3_RX,                     \
-		GPIO_CAN1_SILENT_S0,              \
-		GPIO_CAN2_SILENT_S1,              \
-		GPIO_CAN3_SILENT_S2,              \
 		GPIO_HEATER_OUTPUT,               \
 		GPIO_nPOWER_IN_A,                 \
 		GPIO_nPOWER_IN_B,                 \

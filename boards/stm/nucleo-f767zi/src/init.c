@@ -227,19 +227,6 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 
 	stm32_spiinitialize();
 
-
-	/* Does this board have CAN 2 or CAN 3 if not decouple the RX
-	 * from IP block Leave TX connected
-	 */
-
-	if (!PX4_MFT_HW_SUPPORTED(PX4_MFT_CAN2)) {
-		px4_arch_configgpio(_GPIO_PULL_DOWN_INPUT(GPIO_CAN2_RX));
-	}
-
-	if (!PX4_MFT_HW_SUPPORTED(PX4_MFT_CAN3)) {
-		px4_arch_configgpio(_GPIO_PULL_DOWN_INPUT(GPIO_CAN3_RX));
-	}
-
 	/* configure the DMA allocator */
 
 	if (board_dma_alloc_init() < 0) {
