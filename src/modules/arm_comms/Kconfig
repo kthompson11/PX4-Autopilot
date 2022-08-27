@@ -1,0 +1,5 @@
+menuconfig MODULES_ARM_COMMS
+	bool "arm_comms"
+	default n
+	---help---
+		Enable the copter arm comms module

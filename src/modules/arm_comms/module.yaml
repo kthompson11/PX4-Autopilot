@@ -1,0 +1,7 @@
+module_name: Copter Arm Comms
+serial_config:
+    - command: arm_comms start -d ${SERIAL_DEV}
+      port_config_param:
+        name: ARM_COMMS_CFG
+        group: Copter Arm
+
