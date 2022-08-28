@@ -1,0 +1,5 @@
+menuconfig MODULES_ARM_CONTROLLER
+	bool "arm_controller"
+	default n
+	---help---
+		Enable the copter arm controller

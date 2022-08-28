@@ -1,0 +1,35 @@
+module_name: arm_controller
+
+parameters:
+    - group: Copter Arm
+      definitions:
+        ARM_CTRL_P:
+            description:
+                short: Arm controller proportional gain
+                long: |
+                    The arm controller proportional gain
+
+            type: float
+            reboot_required: false
+            default: 0.0
+
+        ARM_CTRL_I:
+            description:
+                short: Arm controller integral gain
+                long: |
+                    The arm controller integral gain
+
+            type: float
+            reboot_required: false
+            default: 0.0
+
+        ARM_CTRL_D:
+            description:
+                short: Arm controller derivative gain
+                long: |
+                    The arm controller derivative gain
+
+            type: float
+            reboot_required: false
+            default: 0.0
+
