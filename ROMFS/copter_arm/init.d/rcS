@@ -57,4 +57,6 @@ unset BOARD_RC_SENSORS
 #
 . ${R}etc/init.d/rc.serial
 
+pwm_out start
+
 unset R

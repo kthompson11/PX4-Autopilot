@@ -2,3 +2,6 @@
 #
 # board specific defaults
 #------------------------------------------------------------------------------
+
+arm_state_estimator start
+arm_controller start
